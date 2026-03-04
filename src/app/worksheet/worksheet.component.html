@@ -1,0 +1,53 @@
+<mat-sidenav-container class="layout">
+
+  <!-- LEFT PANEL -->
+  <mat-sidenav mode="side" opened class="left-panel">
+    <h3 class="panel-title">Charts</h3>
+
+    <div class="field-grid">
+      <div
+        class="grid-item"
+        *ngFor="let field of fields"
+        (mousedown)="startDrag($event, field)"
+        [class.active-drag]="draggingItem?.id === field.id"
+      >
+        <img [src]="field.image" class="chart-icon" />
+        <span class="field-name">{{ field.name }}</span>
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <!-- CANVAS -->
+  <mat-sidenav-content>
+
+    <div class="worksheet" (mouseup)="dropOnCanvas($event)">
+      <div class="worksheet-title">Canvas Sheet</div>
+
+      <!-- Canvas Items -->
+      <div
+        class="canvas-item"
+        *ngFor="let item of canvasItems; let i = index"
+        [style.left.px]="item.x"
+        [style.top.px]="item.y"
+        [style.zIndex]="item.zIndex"
+        [class.active]="activeIndex === i"
+        (mousedown)="startMove($event, i)"
+        (mouseenter)="onHover(i)"
+        (mouseleave)="onLeave()"
+      >
+        <img [src]="item.image" class="dropped-icon" />
+
+        <span class="item-name">{{ item.name }}</span>
+
+        <mat-icon
+          class="remove"
+          (click)="removeCanvasItem(i)"
+        >
+          close
+        </mat-icon>
+      </div>
+
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

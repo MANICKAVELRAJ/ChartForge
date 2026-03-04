@@ -1,0 +1,126 @@
+<div class="layout">
+
+  <!-- LEFT CLICK SOURCE -->
+  <div class="left-container">
+    <div class="canvas-box" (click)="openPropertyPanel()">
+      <mat-icon>bar_chart</mat-icon>
+      <div>
+        <h4>Bar Chart</h4>
+        <p>Click to open properties</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKDROP -->
+  <div
+    class="backdrop"
+    *ngIf="propertyPanelOpen"
+    (click)="closePropertyPanel()">
+  </div>
+
+  <!-- PROPERTY PANEL -->
+  <div
+    class="property-panel"
+    [class.open]="propertyPanelOpen"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- HEADER -->
+    <div class="property-header">
+      <div class="header-left">
+        <mat-icon class="header-icon">
+          {{ getIconName(selectedItem?.type) }}
+        </mat-icon>
+        <div>
+          <h3>{{ selectedItem?.label }}</h3>
+          <span class="subtitle">Component Properties</span>
+        </div>
+      </div>
+
+      <button mat-icon-button (click)="closePropertyPanel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="property-content" *ngIf="selectedItem">
+
+      <!-- POSITION -->
+      <div class="property-card highlight">
+        <div class="card-title">
+          <mat-icon>location_on</mat-icon>
+          Position
+        </div>
+
+        <div class="input-group">
+          <label for="posX">X</label>
+          <input id="posX" type="number" [(ngModel)]="propertyForm.position.x">
+        </div>
+
+        <div class="input-group">
+          <label for="posY">Y</label>
+          <input id="posY" type="number" [(ngModel)]="propertyForm.position.y">
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="property-card">
+        <div class="card-title">
+          <mat-icon>tune</mat-icon>
+          Chart Settings
+        </div>
+
+        <div class="input-group">
+          <label for="chartWidth">WIDTH</label>
+          <input id="chartWidth" type="number"
+                 [(ngModel)]="selectedItem.properties.width">
+        </div>
+
+        <div class="input-group">
+          <label for="chartHeight">HEIGHT</label>
+          <input id="chartHeight" type="number"
+                 [(ngModel)]="selectedItem.properties.height">
+        </div>
+
+        
+
+      </div>
+<div class="property-card highlight">
+            <!-- TITLE DROPDOWN -->
+        <div class="input-group">
+            <div class="card-title">FIELD</div>
+          <label for="X">X</label>
+          <select id="X" [(ngModel)]="selectedItem.properties.title">
+            <option value="Monthly Sales">Monthly Sales</option>
+            <option value="Yearly Sales">Yearly Sales</option>
+            <option value="Weekly Report">Weekly Report</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="Y">Y</label>
+          <select id="Y" [(ngModel)]="selectedItem.properties.title">
+            <option value="Monthly Sales">Monthly Sales</option>
+            <option value="Yearly Sales">Yearly Sales</option>
+            <option value="Weekly Report">Weekly Report</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+        </div>
+    </div>
+    
+
+    <!-- FOOTER -->
+    <div class="property-footer">
+      <button mat-flat-button color="primary"
+              (click)="saveProperties()">
+        Save
+      </button>
+      <button mat-stroked-button
+              (click)="closePropertyPanel()">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+</div>

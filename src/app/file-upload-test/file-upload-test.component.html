@@ -1,0 +1,74 @@
+<!-- ========== UPLOAD OVERLAY ========== -->
+<div class="upload-container"
+     *ngIf="isVisible"
+     (dragover)="onDragOver($event)"
+     (drop)="onDrop($event)">
+
+  <div class="upload-box" matRipple>
+
+    <h3>Upload JSON / Excel</h3>
+
+    <!-- File Input -->
+    <input type="file"
+           accept=".json,.xls,.xlsx"
+           (change)="onFileSelected($event)" />
+
+    <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
+
+    <!-- Upload Button -->
+    <button *ngIf="selectedFile && !uploading && !uploadCompletedFlag"
+            matRipple
+            (click)="uploadFile()">
+      Upload
+    </button>
+
+    <!-- Circular Spinner -->
+    <div *ngIf="uploading" class="spinner-container">
+      <mat-progress-spinner
+        mode="determinate"
+        [value]="progress"
+        [diameter]="80"
+        [color]="getProgressColor()">
+      </mat-progress-spinner>
+      <p>{{ progress }}%</p>
+    </div>
+
+    <!-- Upload Complete Message -->
+    <p *ngIf="uploadCompletedFlag" class="success blink">
+      ✔ Upload Completed
+    </p>
+
+    <!-- Open Button -->
+    <button *ngIf="showOpenBtn"
+            matRipple
+            class="open-btn"
+            (click)="openPage()">
+      Open
+    </button>
+
+    <!-- Drag & drop message -->
+    <p *ngIf="!selectedFile">Drag & drop file here</p>
+  </div>
+</div>
+
+<!-- ========== BACKGROUND PAGE DATA ========== -->
+<div class="page-content" *ngIf="tableRows.length">
+
+  <h2>Uploaded File Data</h2>
+
+  <table border="1" cellpadding="8">
+    <thead>
+      <tr>
+        <th *ngFor="let h of tableHeaders">{{ h }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of tableRows">
+        <td *ngFor="let h of tableHeaders">
+          {{ row[h] }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

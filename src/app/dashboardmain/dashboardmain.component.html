@@ -1,0 +1,324 @@
+<div class="workspace-layout">
+
+  <div class="left-sidebar">
+
+    <div class="data-analytics-wrapper">
+
+      <mat-tab-group
+        mat-align-tabs="start"
+        [animationDuration]="'0ms'"
+        class="data-analytics-container"
+      >
+
+        <mat-tab label="Data">
+
+          <mat-card class="table-name-card">
+            <mat-card-content>
+              Table Name
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="table-data-card">
+            <mat-card-content>
+
+              <div
+                class="field-list"
+                id="field-list"
+                cdkDropList
+                [cdkDropListData]="fields"
+                [cdkDropListConnectedTo]="['columnsList', 'rowsList']"
+                (cdkDropListDropped)="drop($event)"
+              >
+                <div
+                  class="field-item"
+                  *ngFor="let field of fields"
+                  cdkDrag
+                  [class.field-in-columns]="isFieldInColumns(field)"
+                  [class.field-in-rows]="isFieldInRows(field)"
+                >
+                  <mat-icon>drag_indicator</mat-icon>
+                  <span class="field-name">{{ field }}</span>
+                  <span class="field-placement" *ngIf="isFieldInShelves(field)">
+                    {{ getFieldPlacement(field) }}
+                  </span>
+                </div>
+              </div>
+
+            </mat-card-content>
+          </mat-card>
+
+        </mat-tab>
+
+        <!-- ========== ANALYTICS TAB ========== -->
+        <mat-tab label="Analytics">
+          <div class="analytics-content">
+            <mat-accordion multi>
+
+              <mat-expansion-panel expanded="true">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Chart Types</mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="chart-types-container">
+                  <div
+                    class="chart-list"
+                    id="chartList"
+                    cdkDropList
+                    [cdkDropListData]="chartTypes"
+                    [cdkDropListConnectedTo]="['canvasList']"
+                  >
+                    <div
+                      class="chart-item"
+                      *ngFor="let chart of chartTypes"
+                      cdkDrag
+                    >
+                      <mat-icon class="chart-icon">insert_chart</mat-icon>
+                      <span class="chart-name">{{ chart }}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </mat-expansion-panel>
+
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Filters</mat-panel-title>
+                </mat-expansion-panel-header>
+                <p class="placeholder">Filters content</p>
+              </mat-expansion-panel>
+
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Marks</mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="marks-container">
+                  <mat-form-field appearance="outline" class="marks-select">
+                    <mat-select value="Automatic">
+                      <mat-option value="Automatic">Automatic</mat-option>
+                      <mat-option value="Bar">Bar</mat-option>
+                      <mat-option value="Line">Line</mat-option>
+                      <mat-option value="Area">Area</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <div class="marks-grid">
+                    <button mat-stroked-button class="marks-btn">
+                      <mat-icon>palette</mat-icon> Color
+                    </button>
+                    <button mat-stroked-button class="marks-btn">
+                      <mat-icon>scale</mat-icon> Size
+                    </button>
+                    <button mat-stroked-button class="marks-btn">
+                      <mat-icon>text_fields</mat-icon> Text
+                    </button>
+                    <button mat-stroked-button class="marks-btn">
+                      <mat-icon>details</mat-icon> Detail
+                    </button>
+                    <button mat-stroked-button class="marks-btn full">
+                      <mat-icon>info</mat-icon> Tooltip
+                    </button>
+                  </div>
+                </div>
+
+              </mat-expansion-panel>
+
+            </mat-accordion>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+
+    </div>
+  </div>
+
+  <div class="right-content">
+
+    <div class="worksheet-toolbar">
+
+      <div class="shelves-container">
+
+        <!-- ========== COLUMNS ========== -->
+        <div class="shelf">
+          <div class="shelf-label">
+            <mat-icon>view_column</mat-icon>
+            Columns
+          </div>
+
+          <div class="input-wrapper">
+
+            <div
+              class="input-dropzone"
+              cdkDropList
+              id="columnsList"
+              [cdkDropListData]="columns"
+              [cdkDropListConnectedTo]="['rowsList', 'field-list']"
+              (cdkDropListDropped)="drop($event)"
+              (cdkDragEntered)="onDragEnter('columns')"
+              (cdkDragExited)="onDragLeave('columns')"
+              [class.drag-over]="dragOverShelf === 'columns'"
+            >
+              <!-- Show placeholder when no fields -->
+              <div *ngIf="columns.length === 0" class="dropzone-placeholder">
+                Drop fields here
+              </div>
+              
+              <!-- Show pills when fields exist -->
+              <span
+                class="pill blue"
+                *ngFor="let col of columns; let i = index"
+                cdkDrag
+              >
+                {{ col }}
+                <span class="close" (click)="remove(columns, i)">×</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========== ROWS ========== -->
+        <div class="shelf">
+          <div class="shelf-label">
+            <mat-icon>view_stream</mat-icon>
+            Rows
+          </div>
+
+          <div class="input-wrapper">
+
+            <div
+              class="input-dropzone"
+              cdkDropList
+              id="rowsList"
+              [cdkDropListData]="rows"
+              [cdkDropListConnectedTo]="['columnsList', 'field-list']"
+              (cdkDropListDropped)="drop($event)"
+              (cdkDragEntered)="onDragEnter('rows')"
+              (cdkDragExited)="onDragLeave('rows')"
+              [class.drag-over]="dragOverShelf === 'rows'"
+            >
+              <!-- Show placeholder when no fields -->
+              <div *ngIf="rows.length === 0" class="dropzone-placeholder">
+                Drop fields here
+              </div>
+              
+              <!-- Show pills when fields exist -->
+              <span
+                class="pill blue"
+                *ngFor="let row of rows; let i = index"
+                cdkDrag
+              >
+                {{ row }}
+                <span class="close" (click)="remove(rows, i)">×</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Canvas Area - Wrapped in a container -->
+    <div class="canvas-wrapper">
+      <div 
+        class="worksheet-canvas"
+        cdkDropList
+        id="canvasList"
+        [cdkDropListData]="canvasCharts"
+        [cdkDropListConnectedTo]="['chartList']"
+        (cdkDropListDropped)="dropOnCanvas($event)"
+      >
+        <!-- Empty canvas drop zone that covers entire area -->
+        <div class="canvas-drop-area"></div>
+        
+        <!-- Show placeholder when no fields or charts -->
+        <div *ngIf="columns.length === 0 && rows.length === 0 && !hasChartsInCanvas()" 
+             class="canvas-placeholder">
+          Drag and drop charts here to build your dashboard
+        </div>
+        
+        <!-- Show visualization setup when fields are placed -->
+        <div *ngIf="columns.length > 0 || rows.length > 0" class="canvas-content">
+          <div class="canvas-header">
+            <strong>Current Visualization Setup:</strong>
+          </div>
+          <div class="canvas-setup">
+            <div *ngIf="columns.length > 0">
+              <strong>Columns:</strong> {{ getColumnsText() }}
+            </div>
+            <div *ngIf="rows.length > 0">
+              <strong>Rows:</strong> {{ getRowsText() }}
+            </div>
+          </div>
+          <div class="field-rules-info">
+            <mat-icon style="font-size: 14px; height: 14px; width: 14px; color: #2196f3;">info</mat-icon>
+            <span>Fields can be used in both Columns and Rows, but not duplicated within the same shelf.</span>
+          </div>
+        </div>
+        
+        <!-- Show charts dropped in canvas -->
+        <div *ngFor="let chart of canvasCharts" 
+             class="chart-container"
+             [style.left.px]="chart.x"
+             [style.top.px]="chart.y"
+             cdkDrag
+             (cdkDragEnded)="onChartDragEnd($event, chart.id)">
+          <div class="chart-header">
+            <span class="chart-title">{{ chart.name }}</span>
+            <span class="chart-close" (click)="removeChart(chart.id)">×</span>
+          </div>
+          <div class="chart-body" [class]="'chart-' + chart.type">
+            <div class="chart-preview">
+              <!-- Chart preview representation -->
+              <div *ngIf="chart.type === 'bar'" class="bar-chart-preview">
+                <div class="bar" style="height: 60%; background-color: #4f97b5;"></div>
+                <div class="bar" style="height: 80%; background-color: #4f97b5;"></div>
+                <div class="bar" style="height: 40%; background-color: #4f97b5;"></div>
+                <div class="bar" style="height: 70%; background-color: #4f97b5;"></div>
+              </div>
+              <div *ngIf="chart.type === 'line'" class="line-chart-preview">
+                <svg width="120" height="60">
+                  <polyline points="10,50 40,30 70,40 100,20" 
+                           fill="none" stroke="#4f97b5" stroke-width="2"/>
+                </svg>
+              </div>
+              <div *ngIf="chart.type === 'pie'" class="pie-chart-preview">
+                <div class="pie-slice" style="background-color: #4f97b5;"></div>
+                <div class="pie-slice" style="background-color: #2196f3;"></div>
+                <div class="pie-slice" style="background-color: #03a9f4;"></div>
+              </div>
+              <div *ngIf="chart.type === 'area'" class="area-chart-preview">
+                <svg width="120" height="60">
+                  <polygon points="10,50 40,30 70,40 100,20 100,50 10,50" 
+                           fill="#4f97b5" opacity="0.6"/>
+                  <polyline points="10,50 40,30 70,40 100,20" 
+                           fill="none" stroke="#4f97b5" stroke-width="2"/>
+                </svg>
+              </div>
+              <div *ngIf="chart.type === 'scatter'" class="scatter-chart-preview">
+                <div class="scatter-dot" style="left: 20%; top: 30%;"></div>
+                <div class="scatter-dot" style="left: 40%; top: 60%;"></div>
+                <div class="scatter-dot" style="left: 60%; top: 40%;"></div>
+                <div class="scatter-dot" style="left: 80%; top: 70%;"></div>
+              </div>
+              <div *ngIf="chart.type === 'heatmap'" class="heatmap-chart-preview">
+                <div class="heatmap-cell" style="background-color: #e3f2fd;"></div>
+                <div class="heatmap-cell" style="background-color: #bbdefb;"></div>
+                <div class="heatmap-cell" style="background-color: #90caf9;"></div>
+                <div class="heatmap-cell" style="background-color: #64b5f6;"></div>
+                <div class="heatmap-cell" style="background-color: #42a5f5;"></div>
+                <div class="heatmap-cell" style="background-color: #2196f3;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-footer">
+            Drag to reposition
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

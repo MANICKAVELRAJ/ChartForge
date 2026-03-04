@@ -1,0 +1,119 @@
+.layout {
+  height: 100vh;
+}
+
+/* LEFT PANEL */
+.left-panel {
+  width: 200px;
+  padding: 12px;
+  background: #f5f5f5;
+}
+
+.panel-title {
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: #263238;
+}
+
+/* LIST (NO GRID) */
+.field-grid {
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* LIST ITEM */
+.grid-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.grid-item.active-drag {
+  box-shadow: 0 0 12px rgba(33, 150, 243, 0.9);
+  border-color: #2196f3;
+  transform: scale(1.02);
+}
+
+.chart-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.field-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #263238;
+}
+
+/* CANVAS */
+/* CANVAS */
+.worksheet {
+  position: relative;
+  margin: 16px;
+  border: 2px solid #cfd8dc;
+  border-radius: 8px;
+  background: #fafafa;
+  flex: 1;
+  width: 100rem;
+  height: 50rem;
+  overflow: scroll;
+}
+
+mat-sidenav-content {
+  max-width: 200rem;
+  max-height: 100rem;
+  overflow: scroll;
+}
+
+
+.worksheet-title {
+  width: auto;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  background: #eceff1;
+  color: #263238;
+}
+
+/* Canvas items */
+.canvas-item {
+  width: a;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #e3f2fd;
+  color: navy;
+  border-radius: 4px;
+  cursor: grab;
+  user-select: none;
+}
+.canvas-item:active{
+  cursor: grabbing;
+}
+.dropped-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.remove {
+  margin-left: auto;
+  cursor: pointer;
+  color: #0d47a1;
+}
+
+.remove:hover {
+  color: #d32f2f;
+}

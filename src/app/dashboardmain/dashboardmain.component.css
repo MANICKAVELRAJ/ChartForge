@@ -1,0 +1,564 @@
+.workspace-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+.left-sidebar {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  background: #ffffff;
+}
+
+.data-analytics-wrapper {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+.worksheet-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dcdcdc;
+  background: #ffffff;
+}
+
+.shelves-container {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+}
+
+.shelf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shelf-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 70px;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+}
+
+.input-dropzone {
+  min-width: 300px;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px dashed #cfcfcf;
+  border-radius: 4px;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input-dropzone.drag-over {
+  border: 2px dashed #4f97b5;
+  background-color: #f0f8ff;
+  box-shadow: 0 0 0 1px rgba(79, 151, 181, 0.2);
+}
+
+.dropzone-placeholder {
+  color: #999;
+  font-size: 13px;
+  font-style: italic;
+  width: 100%;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: move;
+  user-select: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.pill.blue {
+  background: #4f97b5;
+  color: #ffffff;
+}
+
+.pill .close {
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.pill .close:hover {
+  opacity: 1;
+}
+
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #d0d0d0;
+  background: #ffffff;
+  font-size: 13px;
+  cursor: move;
+  border-radius: 4px;
+  transition: all 0.2s;
+  min-height: 36px;
+}
+
+.field-item:hover {
+  background-color: #f5f5f5;
+}
+
+.field-item mat-icon {
+  color: #888;
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.field-name {
+  flex: 1;
+  min-width: 0; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px; 
+}
+
+.field-placement {
+  font-size: 11px;
+  padding: 3px 6px; 
+  border-radius: 10px;
+  background-color: #4f97b5;
+  color: #ffffff;
+  white-space: nowrap;
+  font-weight: 500;
+  flex-shrink: 0; 
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.field-in-columns {
+  border-left: 3px solid #2196f3;
+}
+
+.field-in-rows {
+  border-right: 3px solid #4caf50;
+}
+
+.field-in-columns.field-in-rows {
+  border-left: 3px solid #2196f3;
+  border-right: 3px solid #4caf50;
+  background-color: #f5f9ff;
+}
+
+/* ================= CANVAS AREA FIXES ================= */
+.canvas-wrapper {
+  flex: 1;
+  margin: 16px;
+  position: relative;
+}
+
+.worksheet-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border: 2px dashed #c0c0c0;
+  background: #ffffff;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Canvas drop area that covers entire canvas */
+.canvas-drop-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* Ensure other canvas content is above the drop area */
+.canvas-placeholder,
+.canvas-content,
+.chart-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* When dragging over canvas */
+.worksheet-canvas.cdk-drop-list-dragging-over {
+  border: 2px dashed #4f97b5;
+  background-color: #f8fdff;
+}
+
+/* When dragging over canvas drop area */
+.worksheet-canvas.cdk-drop-list-dragging-over .canvas-drop-area {
+  background-color: rgba(79, 151, 181, 0.05);
+}
+
+.canvas-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #999;
+  font-size: 16px;
+  text-align: center;
+  width: 80%;
+  z-index: 2;
+}
+
+.canvas-content {
+  width: 100%;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.canvas-header {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.canvas-setup {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #555;
+}
+
+.canvas-setup div {
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #4f97b5;
+}
+
+.field-rules-info {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #0d47a1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================= ANALYTICS TAB STYLES ================= */
+.analytics-content {
+  padding: 16px;
+}
+
+.chart-types-container {
+  padding: 8px 0;
+}
+
+.chart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chart-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  border-radius: 6px;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.chart-item:hover {
+  background-color: #f0f0f0;
+  border-color: #4f97b5;
+}
+
+.chart-icon {
+  color: #4f97b5;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+.chart-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* ================= CHART CONTAINER STYLES ================= */
+.chart-container {
+  position: absolute;
+  width: 180px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  cursor: move;
+  z-index: 10;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.chart-container:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.chart-close {
+  cursor: pointer;
+  font-size: 16px;
+  color: #999;
+  padding: 0 4px;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.chart-close:hover {
+  color: #ff4444;
+  background-color: #fff0f0;
+}
+
+.chart-body {
+  padding: 15px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-footer {
+  padding: 6px 12px;
+  background: #f9f9f9;
+  border-top: 1px solid #ddd;
+  font-size: 10px;
+  color: #777;
+  text-align: center;
+}
+
+/* Chart preview styles */
+.bar-chart-preview {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 80px;
+  width: 100%;
+}
+
+.bar-chart-preview .bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  min-width: 10px;
+}
+
+.line-chart-preview {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie-chart-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(#4f97b5 0% 40%, #2196f3 40% 70%, #03a9f4 70% 100%);
+  position: relative;
+}
+
+.area-chart-preview {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scatter-chart-preview {
+  width: 120px;
+  height: 80px;
+  position: relative;
+}
+
+.scatter-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #4f97b5;
+  border-radius: 50%;
+}
+
+.heatmap-chart-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
+  width: 100px;
+  height: 80px;
+}
+
+.heatmap-cell {
+  border-radius: 2px;
+}
+
+.marks-container {
+  padding: 8px;
+}
+
+.marks-select {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.marks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.marks-btn {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.marks-btn.full {
+  grid-column: span 2;
+}
+
+.placeholder {
+  font-size: 13px;
+  color: #777;
+  padding: 8px;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  background: white;
+  padding: 8px 10px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.cdk-drag-preview.columns-preview {
+  background: #4f97b5;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 4px 8px rgba(79, 151, 181, 0.3);
+}
+
+.cdk-drag-preview.rows-preview {
+  background: #4f97b5;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 4px 8px rgba(79, 151, 181, 0.3);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.field-list.cdk-drop-list-dragging .field-item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.input-dropzone.cdk-drop-list-dragging-over .cdk-drag-preview {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+.table-name-card {
+  margin: 16px;
+  padding: 12px !important;
+  font-weight: 500;
+}
+
+.table-data-card {
+  margin: 0 16px 16px 16px;
+}
+
+.table-data-card mat-card-content {
+  padding: 16px !important;
+}

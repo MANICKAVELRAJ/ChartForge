@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Bar Chart",
+    "type": "bar"
+  },
+  {
+    "id": 2,
+    "name": "Column Chart",
+    "type": "column"
+  },
+  {
+    "id": 3,
+    "name": "Stacked Bar Chart",
+    "type": "stackedBar"
+  },
+  {
+    "id": 4,
+    "name": "Stacked ColumnChart",
+    "type": "stackedColumn"
+  },
+  {
+    "id": 5,
+    "name": "Pie Chart",
+    "type": "pie"
+  },
+  {
+    "id": 6,
+    "name": "Doughnut Chart",
+    "type": "doughnut"
+  },
+  {
+    "id": 7,
+    "name": "Bubble Chart",
+    "type": "bubble"
+  }
+]
