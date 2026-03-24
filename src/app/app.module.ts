@@ -8,7 +8,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppComponent } from './app.component';
 import { WorksheetComponent } from './worksheet/worksheet.component';
-import { DashboardmainComponent } from './dashboardmain/dashboardmain.component';
 import { WorksheetLiteComponent } from './worksheet-lite/worksheet-lite.component';
 import { FileUploadTestComponent } from './file-upload-test/file-upload-test.component';
 import { ChartRendererComponent } from './worksheet-lite/chart-renderer.component';
@@ -33,7 +32,6 @@ import { MatRippleModule } from '@angular/material/core';
   declarations: [
     AppComponent,
     WorksheetComponent,
-    DashboardmainComponent,
     WorksheetLiteComponent,
     PropertyComponent,
     FileUploadTestComponent,

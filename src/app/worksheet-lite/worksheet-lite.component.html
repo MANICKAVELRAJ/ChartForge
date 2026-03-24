@@ -1,244 +1,554 @@
 <div class="workspace-layout">
 
-  <!-- ========== LEFT SIDEBAR ========== -->
-  <div class="left-sidebar" [class.collapsed]="isSidebarCollapsed">
-    <div class="analytics-panel">
-      <div class="panel-card accent">
-        <h3 class="panel-title">Chart List</h3>
-      </div>
-      <div class="chart-list" cdkDropList id="chartList" [cdkDropListData]="service.chartTypes"
-        [cdkDropListConnectedTo]="['canvasList']" cdkDropListSortingDisabled>
-        <div class="chart-item" *ngFor="let chart of service.chartTypes" cdkDrag [cdkDragData]="chart">
-          <div class="chart-icon" [innerHTML]="service.getChartSvg(chart.type)"></div>
-          <span class="chart-name">{{ chart.name }}</span>
-          <ng-template cdkDragPreview>
-            <div class="chart-drag-preview">
-              <span class="preview-icon" [innerHTML]="service.getChartSvg(chart.type)"></span>
-              <span>{{ chart.name }}</span>
-            </div>
-          </ng-template>
-        </div>
+  <!-- ===== LEFT SIDEBAR ===== -->
+  <div class="left-sidebar" [class.collapsed]="!isSidebarCollapsed">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><mat-icon>layers</mat-icon></div>
+      <span class="brand-name">DataForge</span>
+    </div>
+    <span class="sidebar-section-label" *ngIf="!isSidebarCollapsed">CHARTS</span>
+    <div class="chart-list" cdkDropList id="chartList" [cdkDropListData]="service.chartTypes"
+      [cdkDropListConnectedTo]="['canvasList']" cdkDropListSortingDisabled>
+      <div class="chart-item" *ngFor="let chart of service.chartTypes" cdkDrag [cdkDragData]="chart"
+        [matTooltip]="chart.name" matTooltipPosition="right">
+        <div class="chart-icon" [innerHTML]="service.getChartSvg(chart.type)"></div>
+        <span class="chart-name">{{ chart.name }}</span>
+        <ng-template cdkDragPreview>
+          <div class="chart-drag-preview">
+            <span class="drag-preview-icon" [innerHTML]="service.getChartSvg(chart.type)"></span>
+            <span class="drag-preview-name">{{ chart.name }}</span>
+          </div>
+        </ng-template>
+        <ng-template cdkDragPlaceholder>
+          <div class="chart-drag-placeholder"></div>
+        </ng-template>
       </div>
     </div>
   </div>
 
-  <!-- ========== RIGHT CONTENT ========== -->
-  <div class="right-content">
-    <div class="worksheet-title">
-      <span>Canvas Sheet</span>
-      <button class="header-toggle" (click)="toggleSidebar()"
-        [matTooltip]="isSidebarCollapsed ? 'Expand sidebar' : 'Expand Canvas'" matTooltipPosition="right">
-        <mat-icon>{{ isSidebarCollapsed ? 'menu' : 'fullscreen' }}</mat-icon>
-      </button>
+  <!-- ===== MAIN AREA ===== -->
+  <div class="main-content">
+
+    <!-- TOP NAVBAR -->
+    <div class="top-navbar">
+      <div class="navbar-left">
+        <div class="page-icon"><mat-icon>dashboard</mat-icon></div>
+        <span class="page-title">Canvas Sheet</span>
+      </div>
+      <div class="navbar-right">
+        <div class="nav-chip">
+          <mat-icon>bar_chart</mat-icon>
+          <span>{{ service.canvasCharts.length }} charts</span>
+        </div>
+        <button class="clear-all-btn" *ngIf="service.canvasCharts.length > 0" (click)="clearAllCharts()"
+          matTooltip="Delete all charts" matTooltipPosition="below">
+          <mat-icon>delete_sweep</mat-icon>
+        </button>
+      </div>
     </div>
 
-    <div class="worksheet" cdkDropList id="canvasList" [cdkDropListConnectedTo]="['chartList']"
-      (cdkDropListDropped)="dropOnCanvas($event)">
+    <!-- WORKSHEET CANVAS -->
+    <div class="worksheet-wrap">
+      <div class="worksheet" cdkDropList id="canvasList" [cdkDropListConnectedTo]="['chartList']"
+        (cdkDropListDropped)="dropOnCanvas($event)">
 
-      <div class="canvas-item" *ngFor="let chart of service.canvasCharts; let i = index"
-        [style.left.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.x : chart.x"
-        [style.top.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.y : chart.y"
-        [style.width.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.width : chart.width"
-        [style.height.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.height : chart.height"
-        [style.zIndex]="chart.zIndex" (mousedown)="startMove($event, i)" (click)="openPropertyPanel(chart)">
-
-        <div class="canvas-header">
-          <span class="canvas-header-title">{{ chart.name }}</span>
-          <span class="canvas-close" (click)="removeChart(chart.id); $event.stopPropagation()">
-            <mat-icon>close</mat-icon>
-          </span>
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="service.canvasCharts.length === 0">
+          <mat-icon class="empty-icon">dashboard_customize</mat-icon>
+          <p class="empty-title">Drop charts here</p>
+          <p class="empty-sub">Drag any chart from the left panel to begin</p>
         </div>
 
-        <div class="canvas-body">
-          <ng-container *ngIf="chart.data && chart.data.length > 0; else defaultIcon">
-            <app-chart-renderer [item]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem! : chart">
-            </app-chart-renderer>
+        <!-- Canvas Items -->
+        <div class="canvas-item" [class.count-chart-card]="chart.type === 'count'"
+          *ngFor="let chart of service.canvasCharts; let i = index"
+          [style.left.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.x : chart.x"
+          [style.top.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.y : chart.y"
+          [style.width.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.width : chart.width"
+          [style.height.px]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem?.height : chart.height"
+          [style.zIndex]="chart.zIndex" [class.active-card]="selectedItem?.id === chart.id && propertyPanelOpen"
+          (mousedown)="startMove($event, i)" (click)="openPropertyPanel(chart)">
+
+          <!-- ════════════════════════════════════════
+               COUNT CHART — full card replacement
+          ════════════════════════════════════════ -->
+          <ng-container *ngIf="chart.type === 'count'">
+
+            <!-- Floating close button -->
+            <span class="count-chart-close" (click)="removeChart(chart.id); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </span>
+
+            <!-- Has selected values → count cards grid -->
+            <ng-container *ngIf="getCountSelectedValues(chart).length > 0; else countChartEmpty">
+              <div class="count-cards-grid">
+                <div [class]="'count-card-item grad-' + (ci % 6)"
+                  *ngFor="let val of getCountCardData(chart); let ci = index"
+                  (click)="openPropertyPanel(chart); $event.stopPropagation()">
+
+                  <!-- Decorative circles -->
+                  <span class="cci-circle cci-c1"></span>
+                  <span class="cci-circle cci-c2"></span>
+
+                  <!-- Top-left icon box -->
+                  <div class="cci-icon">
+                    <mat-icon>{{ getCountCardIcon(ci) }}</mat-icon>
+                  </div>
+
+                  <!-- Body: field → label → value → table -->
+                  <div class="cci-body">
+                    <p class="cci-field">{{ chart.xField }}</p>
+                    <p class="cci-label">{{ val.label }}</p>
+                    <p class="cci-value">{{ val.count | number }}</p>
+                    <p class="cci-table">{{ chart.tableName }}</p>
+                  </div>
+
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Not configured / no values selected -->
+            <ng-template #countChartEmpty>
+              <div class="count-chart-placeholder" (click)="openPropertyPanel(chart); $event.stopPropagation()">
+                <div class="placeholder-icon" [innerHTML]="service.getChartSvg(chart.type)"></div>
+                <span>{{ chart.xField ? 'Select values in panel' : 'Click to configure' }}</span>
+                <span class="pch-sub" *ngIf="chart.xField">Check values to show count cards</span>
+              </div>
+            </ng-template>
+
           </ng-container>
-          <ng-template #defaultIcon>
-            <div class="canvas-placeholder">
-              <span class="canvas-icon" [innerHTML]="service.getChartSvg(chart.type)"></span>
-              <span class="canvas-placeholder-text">Click to configure</span>
+
+
+          <!-- ════════════════════════════════════════
+               TABLE CHART
+          ════════════════════════════════════════ -->
+          <ng-container *ngIf="chart.type === 'table'">
+            <div class="canvas-header">
+              <div class="canvas-header-left">
+                <span class="type-dot"></span>
+                <span class="canvas-header-title">{{ chart.name }}</span>
+              </div>
+              <span class="canvas-close" (click)="removeChart(chart.id); $event.stopPropagation()">
+                <mat-icon>close</mat-icon>
+              </span>
             </div>
-          </ng-template>
+            <div class="canvas-body table-canvas-body" (click)="openPropertyPanel(chart); $event.stopPropagation()">
+              <ng-container *ngIf="isTableChartReady(chart); else tablePlaceholder">
+                <div class="table-chart-scroll">
+                  <table class="table-chart-table">
+                    <thead>
+                      <tr>
+                        <th *ngFor="let col of getTableSelectedColumns(chart)">{{ col }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of (chart.data || []) | slice:0:getTableRowCount(chart); let ri = index"
+                        [class.table-row-odd]="ri % 2 !== 0">
+                        <td *ngFor="let col of getTableSelectedColumns(chart)">{{ row[col] ?? '—' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+              <ng-template #tablePlaceholder>
+                <div class="canvas-placeholder">
+                  <div class="placeholder-icon" [innerHTML]="service.getChartSvg(chart.type)"></div>
+                  <span>{{ chart.data?.length ? 'Select columns in panel' : 'Click to configure' }}</span>
+                </div>
+              </ng-template>
+            </div>
+          </ng-container>
+
+          <!-- ════════════════════════════════════════
+               NORMAL CHARTS
+          ════════════════════════════════════════ -->
+          <ng-container *ngIf="chart.type !== 'count' && chart.type !== 'table'">
+            <div class="canvas-header">
+              <div class="canvas-header-left">
+                <span class="type-dot"></span>
+                <span class="canvas-header-title">{{ chart.name }}</span>
+              </div>
+              <span class="canvas-close" (click)="removeChart(chart.id); $event.stopPropagation()">
+                <mat-icon>close</mat-icon>
+              </span>
+            </div>
+            <div class="canvas-body">
+              <ng-container *ngIf="chart.data && chart.data.length > 0; else placeholder">
+                <app-chart-renderer [item]="propertyPanelOpen && selectedItem?.id === chart.id ? editableItem! : chart">
+                </app-chart-renderer>
+              </ng-container>
+              <ng-template #placeholder>
+                <div class="canvas-placeholder">
+                  <div class="placeholder-icon" [innerHTML]="service.getChartSvg(chart.type)"></div>
+                  <span>Click to configure</span>
+                </div>
+              </ng-template>
+            </div>
+          </ng-container>
+
+          <div class="resize-handle rh-n" (mousedown)="startResize($event,i,'n');  $event.stopPropagation()"></div>
+          <div class="resize-handle rh-s" (mousedown)="startResize($event,i,'s');  $event.stopPropagation()"></div>
+          <div class="resize-handle rh-e" (mousedown)="startResize($event,i,'e');  $event.stopPropagation()"></div>
+          <div class="resize-handle rh-w" (mousedown)="startResize($event,i,'w');  $event.stopPropagation()"></div>
+          <div class="resize-handle rh-ne" (mousedown)="startResize($event,i,'ne'); $event.stopPropagation()"></div>
+          <div class="resize-handle rh-nw" (mousedown)="startResize($event,i,'nw'); $event.stopPropagation()"></div>
+          <div class="resize-handle rh-se" (mousedown)="startResize($event,i,'se'); $event.stopPropagation()"></div>
+          <div class="resize-handle rh-sw" (mousedown)="startResize($event,i,'sw'); $event.stopPropagation()"></div>
         </div>
 
-        <div class="resize-handle rh-n" (mousedown)="startResize($event, i, 'n');  $event.stopPropagation()"></div>
-        <div class="resize-handle rh-s" (mousedown)="startResize($event, i, 's');  $event.stopPropagation()"></div>
-        <div class="resize-handle rh-e" (mousedown)="startResize($event, i, 'e');  $event.stopPropagation()"></div>
-        <div class="resize-handle rh-w" (mousedown)="startResize($event, i, 'w');  $event.stopPropagation()"></div>
-        <div class="resize-handle rh-ne" (mousedown)="startResize($event, i, 'ne'); $event.stopPropagation()"></div>
-        <div class="resize-handle rh-nw" (mousedown)="startResize($event, i, 'nw'); $event.stopPropagation()"></div>
-        <div class="resize-handle rh-se" (mousedown)="startResize($event, i, 'se'); $event.stopPropagation()"></div>
-        <div class="resize-handle rh-sw" (mousedown)="startResize($event, i, 'sw'); $event.stopPropagation()"></div>
       </div>
-
     </div>
   </div>
 
   <!-- BACKDROP -->
   <div class="backdrop" *ngIf="propertyPanelOpen" (click)="cancelChanges()"></div>
 
-  <!-- ========== REMASTERED PROPERTY PANEL ========== -->
+  <!-- ===== PROPERTY PANEL ===== -->
   <div class="property-panel" [class.open]="propertyPanelOpen" (click)="$event.stopPropagation()">
 
-    <!-- PANEL HEADER -->
     <div class="pp-header">
       <div class="pp-header-left">
         <div class="pp-chart-icon" [innerHTML]="service.getChartSvg(editableItem?.type)"></div>
         <div class="pp-header-text">
-          <span class="pp-title" matTooltip="{{ editableItem?.name || 'Chart Properties' }}">{{ editableItem?.name ||
-            'Chart Properties' }}</span>
+          <span class="pp-title">{{ editableItem?.name || 'Chart Properties' }}</span>
           <span class="pp-subtitle">Configure your visualization</span>
         </div>
       </div>
       <button class="pp-close-btn" (click)="cancelChanges()">
-        <mat-icon matTooltip="Close">close</mat-icon>
+        <mat-icon>close</mat-icon>
       </button>
     </div>
 
-    <!-- LIVE BADGE -->
     <div class="pp-live-badge" *ngIf="isLivePreview">
-      <span class="live-dot"></span>
-      <span>Live Preview</span>
+      <span class="live-dot"></span><span>Live Preview</span>
     </div>
 
     <input type="file" hidden #fileInput accept=".json,.xlsx,.xls" (change)="onFileSelected($event)" />
 
     <div class="pp-body" *ngIf="editableItem">
 
-      <!-- ── SECTION 2: DATA SOURCE ── -->
+      <!-- DATA SOURCE -->
       <div class="pp-section">
         <div class="pp-section-label">
-          <mat-icon>storage</mat-icon>
-          <span>Data Source</span>
-          <button class="upload-icon-btn" (click)="fileInput.click()" matTooltip="Upload JSON / Excel"
+          <mat-icon>storage</mat-icon><span>Data Source</span>
+          <button class="upload-icon-btn" (click)="fileInput.click()" matTooltip="Upload file"
             matTooltipPosition="above">
             <mat-icon>upload_file</mat-icon>
           </button>
         </div>
-
-        <!-- Upload Progress -->
         <div class="upload-bar-wrap" *ngIf="uploadProgress > 0">
           <div class="upload-bar-fill" [style.width.%]="uploadProgress"></div>
           <span class="upload-bar-label">{{ uploadProgress < 100 ? uploadProgress + '%' : '✅ Done!' }}</span>
         </div>
-
-        <!-- Table Select -->
         <div class="pp-field" *ngIf="!isCustomDataUploaded">
           <label class="pp-label">Table</label>
           <div class="pp-select-wrap">
             <mat-icon class="select-icon">table_chart</mat-icon>
             <select class="pp-select" [(ngModel)]="editableItem.tableId" (ngModelChange)="onTableSelect($event)"
-              [disabled]="isCustomDataUploaded" matTooltip="Choose table">
+              [disabled]="isCustomDataUploaded">
               <option value="">— Choose Table —</option>
               <option *ngFor="let p of service.pages$ | async" [value]="p.id">{{ p.table_name }}</option>
             </select>
           </div>
         </div>
-
-        <!-- Row Count Badge -->
         <div class="row-count-badge" *ngIf="editableItem.data?.length">
           <mat-icon>grid_on</mat-icon>
           <span>{{ editableItem.data!.length | number }} rows loaded</span>
         </div>
-
-        <!-- Custom upload badge -->
         <div class="custom-upload-badge" *ngIf="isCustomDataUploaded">
-          <mat-icon>check_circle</mat-icon>
-          <span>Custom file uploaded</span>
-          <button class="clear-btn" (click)="clearCustomData()">
-            <mat-icon>close</mat-icon>
-          </button>
+          <mat-icon>check_circle</mat-icon><span>Custom file uploaded</span>
+          <button class="clear-btn" (click)="clearCustomData()"><mat-icon>close</mat-icon></button>
         </div>
       </div>
 
-      <!-- ── SECTION 3: FIELD MAPPING ── -->
-      <div class="pp-section" *ngIf="editableItem.fields?.length">
-        <div class="pp-section-label">
-          <mat-icon>tune</mat-icon>
-          <span>Field Mapping</span>
-          <span class="field-count-chip">{{ editableItem.fields!.length }} fields</span>
-        </div>
 
-        <!-- X Field -->
+      <!-- ════════════════════════════════
+           TABLE CHART CONFIG
+      ═══════════════════════════════════ -->
+
+      <!-- Row Count Input -->
+      <div class="pp-section" *ngIf="editableItem.type === 'table' && editableItem.data?.length">
+        <div class="pp-section-label">
+          <mat-icon>format_list_numbered</mat-icon>
+          <span>Row Count</span>
+          <span class="field-count-chip">max {{ editableItem.data!.length | number }}</span>
+        </div>
+        <div class="pp-field">
+          <label class="pp-label">Rows to display</label>
+          <div class="stepper-wrap">
+            <button class="stepper-btn"
+              (click)="onTableRowCountChange(tableRowCount - 5)"><mat-icon>remove</mat-icon></button>
+            <input class="pp-input stepper-input" type="number" [min]="1" [max]="editableItem.data!.length"
+              [(ngModel)]="tableRowCount" (ngModelChange)="onTableRowCountChange($event)" style="width:60px" />
+            <button class="stepper-btn"
+              (click)="onTableRowCountChange(tableRowCount + 5)"><mat-icon>add</mat-icon></button>
+          </div>
+          <p class="vp-note vp-note-info" style="margin-top:6px">
+            <mat-icon>info</mat-icon>
+            <span>Showing first {{ tableRowCount }} of {{ editableItem.data!.length | number }} rows</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Column Keys Selection -->
+      <div class="pp-section pp-preview-section" *ngIf="editableItem.type === 'table' && tableColumnKeys.length > 0">
+        <div class="pp-section-label">
+          <mat-icon>view_column</mat-icon>
+          <span>Column Keys</span>
+          <span class="field-count-chip">{{ tableColumnKeys.length }} keys</span>
+        </div>
+        <p class="count-card-hint">
+          <mat-icon>check_box</mat-icon>
+          <span>Check columns to show in table</span>
+        </p>
+        <div class="table-col-actions">
+          <button class="tca-btn" (click)="selectAllTableColumns()"><mat-icon>select_all</mat-icon> All</button>
+          <button class="tca-btn tca-clear" (click)="clearAllTableColumns()"><mat-icon>deselect</mat-icon> None</button>
+          <span class="tca-info">{{ tableSelectedColumns.length }} selected</span>
+        </div>
+        <div class="value-preview-list table-col-list">
+          <div class="value-preview-row has-checkbox" *ngFor="let col of tableColumnKeys">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox" [checked]="isTableColumnSelected(col)" (change)="toggleTableColumn(col, $event)" />
+              <span class="vp-checkbox-custom" [class.checked]="isTableColumnSelected(col)"></span>
+            </label>
+            <span class="vp-label table-col-key">{{ col }}</span>
+            <span class="table-col-sample" *ngIf="editableItem.data?.[0]?.[col] !== undefined">
+              {{ editableItem.data![0][col] ?? '—' }}
+            </span>
+          </div>
+        </div>
+        <div class="ready-indicator" *ngIf="isTableChartConfigured()">
+          <mat-icon>check_circle</mat-icon>
+          <span>Ready — {{ tableSelectedColumns.length }} cols · {{ tableRowCount }} rows</span>
+        </div>
+      </div>
+      <!-- END TABLE CHART CONFIG -->
+
+      <!-- KEY MAPPING -->
+      <div class="pp-section" *ngIf="editableItem.type !== 'table' && editableItem.fields?.length">
+        <div class="pp-section-label">
+          <mat-icon>tune</mat-icon><span>Key Mapping</span>
+          <span class="field-count-chip">{{ editableItem.fields!.length }} keys</span>
+        </div>
         <div class="pp-field" *ngIf="chartRequirements?.selectableX">
           <label class="pp-label">
-            <span class="axis-badge x-badge">X</span>
-            {{ chartRequirements?.xLabel || 'X Field' }}
+            <span class="axis-badge x-badge">X</span>{{ chartRequirements?.xLabel || 'X Axis' }}
           </label>
           <div class="pp-select-wrap" [class.selected]="editableItem.xField">
             <mat-icon class="select-icon">arrow_right_alt</mat-icon>
             <select class="pp-select" [(ngModel)]="editableItem.xField" (ngModelChange)="onXFieldChange($event)">
               <option value="">— Select Field —</option>
-              <option *ngFor="let field of editableItem.fields" [value]="field">{{ field }}</option>
+              <option *ngFor="let f of editableItem.fields" [value]="f">{{ f }}</option>
             </select>
           </div>
         </div>
-
-        <!-- Y Field -->
         <div class="pp-field" *ngIf="chartRequirements?.selectableY">
           <label class="pp-label">
-            <span class="axis-badge y-badge">Y</span>
-            {{ chartRequirements?.yLabel || 'Y Field' }}
+            <span class="axis-badge y-badge">Y</span>{{ chartRequirements?.yLabel || 'Y Axis' }}
           </label>
           <div class="pp-select-wrap" [class.selected]="editableItem.yField">
             <mat-icon class="select-icon">arrow_upward</mat-icon>
             <select class="pp-select" [(ngModel)]="editableItem.yField" (ngModelChange)="onYFieldChange($event)">
               <option value="">— Select Field —</option>
-              <option *ngFor="let field of editableItem.fields" [value]="field">{{ field }}</option>
+              <option *ngFor="let f of editableItem.fields" [value]="f">{{ f }}</option>
             </select>
           </div>
         </div>
-
-
-        <!-- R Field (Bubble Chart only) -->
-        <div class="pp-field" *ngIf="chartRequirements?.selectableR">
-          <label class="pp-label">
-            <span class="axis-badge r-badge">R</span>
-            {{ chartRequirements?.rLabel || 'Radius Field' }}
-          </label>
-          <div class="pp-select-wrap" [class.selected]="editableItem.rField">
-            <mat-icon class="select-icon">bubble_chart</mat-icon>
-            <select class="pp-select" [(ngModel)]="editableItem.rField" (ngModelChange)="onRFieldChange($event)">
-              <option value="">— Select Field (Optional) —</option>
-              <option *ngFor="let field of editableItem.fields" [value]="field">{{ field }}</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Ready indicator -->
         <div class="ready-indicator" *ngIf="isChartReady()">
-          <mat-icon>check_circle</mat-icon>
-          <span>Chart is ready!</span>
+          <mat-icon>check_circle</mat-icon><span>Chart is ready!</span>
         </div>
       </div>
 
-      <!-- ── SECTION 4: POSITION & SIZE ── -->
-      <div class="pp-section pp-section-collapsed" #posSection>
+      <!-- X FIELD VALUE PREVIEW — normal charts (non-count) -->
+      <div class="pp-section pp-preview-section"
+        *ngIf="editableItem.type !== 'count' && editableItem.type !== 'table' && xFieldValueCounts.length > 0">
+        <div class="pp-section-label">
+          <mat-icon>arrow_right_alt</mat-icon>
+          <span class="axis-badge x-badge" style="margin-right:4px">X</span>
+          <span>{{ editableItem.xField }} — Values</span>
+          <span class="field-count-chip">{{ xFieldValueCounts.length }} groups</span>
+        </div>
+        <p class="count-card-hint">
+          <mat-icon>filter_alt</mat-icon>
+          <span>Check values to filter chart data</span>
+        </p>
+        <div class="value-preview-list">
+          <!-- Master Select All row -->
+          <div class="value-preview-row has-checkbox vp-master-row">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox"
+                [checked]="isAllXSelected()"
+                [indeterminate]="isXIndeterminate()"
+                (change)="toggleAllXValues($event)" />
+              <span class="vp-checkbox-custom"
+                [class.checked]="isAllXSelected()"
+                [class.indeterminate]="isXIndeterminate()"></span>
+            </label>
+            <span class="vp-label vp-master-label">Select All</span>
+            <span class="vp-master-count">{{ selectedXValues.length === 0 ? 'All' : selectedXValues.length }} / {{ xFieldValueCounts.length }}</span>
+          </div>
+          <!-- Individual rows -->
+          <div class="value-preview-row has-checkbox" *ngFor="let vp of xFieldValueCounts">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox" [checked]="isXValueSelected(vp.label)" (change)="toggleXValue(vp.label, $event)" />
+              <span class="vp-checkbox-custom" [class.checked]="isXValueSelected(vp.label)"></span>
+            </label>
+            <span class="vp-label">{{ vp.label }}</span>
+            <div class="vp-bar-wrap">
+              <div class="vp-bar-fill" [style.width.%]="vp.pct"></div>
+            </div>
+            <span class="vp-count">{{ vp.count }}</span>
+            <span class="vp-pct">{{ vp.pct }}%</span>
+          </div>
+        </div>
+        <p class="vp-note" *ngIf="selectedXValues.length > 0">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ selectedXValues.length }} value(s) selected — chart filtered</span>
+        </p>
+        <p class="vp-note vp-note-info" *ngIf="selectedXValues.length === 0">
+          <mat-icon>info</mat-icon>
+          <span>No filter applied — showing all data</span>
+        </p>
+      </div>
+
+      <!-- Y FIELD VALUE PREVIEW — normal charts (non-count), only for categorical Y -->
+      <div class="pp-section pp-preview-section"
+        *ngIf="editableItem.type !== 'count' && editableItem.type !== 'table' && yFieldValueCounts.length > 0 && editableItem.yField">
+        <div class="pp-section-label">
+          <mat-icon>arrow_upward</mat-icon>
+          <span class="axis-badge y-badge" style="margin-right:4px">Y</span>
+          <span>{{ editableItem.yField }} — Values</span>
+          <span class="field-count-chip">{{ yFieldValueCounts.length }} groups</span>
+        </div>
+        <p class="count-card-hint">
+          <mat-icon>filter_alt</mat-icon>
+          <span>Check values to filter chart data</span>
+        </p>
+        <div class="value-preview-list">
+          <!-- Master Select All row -->
+          <div class="value-preview-row has-checkbox vp-master-row">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox"
+                [checked]="isAllYSelected()"
+                [indeterminate]="isYIndeterminate()"
+                (change)="toggleAllYValues($event)" />
+              <span class="vp-checkbox-custom"
+                [class.checked]="isAllYSelected()"
+                [class.indeterminate]="isYIndeterminate()"></span>
+            </label>
+            <span class="vp-label vp-master-label">Select All</span>
+            <span class="vp-master-count">{{ selectedYValues.length === 0 ? 'All' : selectedYValues.length }} / {{ yFieldValueCounts.length }}</span>
+          </div>
+          <!-- Individual rows -->
+          <div class="value-preview-row has-checkbox" *ngFor="let vp of yFieldValueCounts">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox" [checked]="isYValueSelected(vp.label)" (change)="toggleYValue(vp.label, $event)" />
+              <span class="vp-checkbox-custom" [class.checked]="isYValueSelected(vp.label)"></span>
+            </label>
+            <span class="vp-label">{{ vp.label }}</span>
+            <div class="vp-bar-wrap">
+              <div class="vp-bar-fill vp-bar-y" [style.width.%]="vp.pct"></div>
+            </div>
+            <span class="vp-count">{{ vp.count }}</span>
+            <span class="vp-pct">{{ vp.pct }}%</span>
+          </div>
+        </div>
+        <p class="vp-note" *ngIf="selectedYValues.length > 0">
+          <mat-icon>check_circle</mat-icon>
+          <span>{{ selectedYValues.length }} value(s) selected — chart filtered</span>
+        </p>
+        <p class="vp-note vp-note-info" *ngIf="selectedYValues.length === 0">
+          <mat-icon>info</mat-icon>
+          <span>No filter applied — showing all data</span>
+        </p>
+      </div>
+
+      <!-- VALUE PREVIEW — count chart மட்டும் -->
+      <div class="pp-section pp-preview-section" *ngIf="editableItem.type === 'count' && fieldValueCounts.length > 0">
+        <div class="pp-section-label">
+          <mat-icon>insights</mat-icon>
+          <span>{{ previewField }} — Values</span>
+          <span class="field-count-chip">{{ fieldValueCounts.length }} groups</span>
+        </div>
+        <p class="count-card-hint">
+          <mat-icon>dashboard</mat-icon>
+          <span>Check values to show in count chart</span>
+        </p>
+        <div class="value-preview-list">
+          <!-- Master Select All row -->
+          <div class="value-preview-row has-checkbox vp-master-row">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox"
+                [checked]="isAllCountSelected()"
+                [indeterminate]="isCountIndeterminate()"
+                (change)="toggleAllCountValues($event)" />
+              <span class="vp-checkbox-custom"
+                [class.checked]="isAllCountSelected()"
+                [class.indeterminate]="isCountIndeterminate()"></span>
+            </label>
+            <span class="vp-label vp-master-label">Select All</span>
+            <span class="vp-master-count">{{ countSelectedValues.length === 0 ? 'None' : countSelectedValues.length }} / {{ fieldValueCounts.length }}</span>
+          </div>
+          <!-- Individual rows -->
+          <div class="value-preview-row has-checkbox" *ngFor="let vp of fieldValueCounts">
+            <label class="vp-checkbox-wrap">
+              <input type="checkbox" [checked]="isCountCardSelected(vp.label)" (change)="toggleCountCard(vp, $event)" />
+              <span class="vp-checkbox-custom" [class.checked]="isCountCardSelected(vp.label)"></span>
+            </label>
+            <span class="vp-label">{{ vp.label }}</span>
+            <div class="vp-bar-wrap">
+              <div class="vp-bar-fill" [style.width.%]="vp.pct"></div>
+            </div>
+            <span class="vp-count">{{ vp.count }}</span>
+            <span class="vp-pct">{{ vp.pct }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POSITION & SIZE -->
+      <div class="pp-section">
         <div class="pp-section-label pp-section-toggle" (click)="togglePosSection()">
-          <mat-icon>open_with</mat-icon>
-          <span>Position & Size</span>
+          <mat-icon>open_with</mat-icon><span>Position & Size</span>
           <mat-icon class="toggle-arrow" [class.rotated]="posSectionOpen">expand_more</mat-icon>
         </div>
         <div class="pp-collapsible" [class.open]="posSectionOpen">
           <div class="pos-size-grid">
             <div class="pp-field mini">
               <label class="pp-label">X</label>
-              <input class="pp-input" type="number" [(ngModel)]="editableItem.x"
-                (ngModelChange)="checkOverlapLive(editableItem)">
+              <div class="stepper-wrap">
+                <button class="stepper-btn" (click)="stepX(-10)"><mat-icon>remove</mat-icon></button>
+                <input class="pp-input stepper-input" type="number" [(ngModel)]="editableItem.x"
+                  (ngModelChange)="checkOverlapLive(editableItem)">
+                <button class="stepper-btn" (click)="stepX(10)"><mat-icon>add</mat-icon></button>
+              </div>
             </div>
             <div class="pp-field mini">
               <label class="pp-label">Y</label>
-              <input class="pp-input" type="number" [(ngModel)]="editableItem.y"
-                (ngModelChange)="checkOverlapLive(editableItem)">
+              <div class="stepper-wrap">
+                <button class="stepper-btn" (click)="stepY(-10)"><mat-icon>remove</mat-icon></button>
+                <input class="pp-input stepper-input" type="number" [(ngModel)]="editableItem.y"
+                  (ngModelChange)="checkOverlapLive(editableItem)">
+                <button class="stepper-btn" (click)="stepY(10)"><mat-icon>add</mat-icon></button>
+              </div>
             </div>
             <div class="pp-field mini">
-              <label class="pp-label">Width</label>
-              <input class="pp-input" type="number" [(ngModel)]="editableItem.width" (ngModelChange)="onSizeChange()">
+              <label class="pp-label">W</label>
+              <div class="stepper-wrap">
+                <button class="stepper-btn" (click)="stepWidth(-20)"><mat-icon>remove</mat-icon></button>
+                <input class="pp-input stepper-input" type="number" [(ngModel)]="editableItem.width"
+                  (ngModelChange)="onSizeChange()">
+                <button class="stepper-btn" (click)="stepWidth(20)"><mat-icon>add</mat-icon></button>
+              </div>
             </div>
             <div class="pp-field mini">
-              <label class="pp-label">Height</label>
-              <input class="pp-input" type="number" [(ngModel)]="editableItem.height" (ngModelChange)="onSizeChange()">
+              <label class="pp-label">H</label>
+              <div class="stepper-wrap">
+                <button class="stepper-btn" (click)="stepHeight(-20)"><mat-icon>remove</mat-icon></button>
+                <input class="pp-input stepper-input" type="number" [(ngModel)]="editableItem.height"
+                  (ngModelChange)="onSizeChange()">
+                <button class="stepper-btn" (click)="stepHeight(20)"><mat-icon>add</mat-icon></button>
+              </div>
             </div>
           </div>
         </div>
@@ -246,7 +556,6 @@
 
     </div>
 
-    <!-- PANEL FOOTER -->
     <div class="pp-footer">
       <button class="pp-btn pp-btn-cancel" (click)="cancelChanges()">
         <mat-icon>undo</mat-icon><span>Cancel</span>

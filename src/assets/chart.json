@@ -1,37 +1,66 @@
 [
   {
+    "id": 0,
+    "name": "Count Chart",
+    "type": "count"
+  },
+  {
     "id": 1,
+    "name": "Table Chart",
+    "type": "table",
+    "shortName": "table"
+  },
+  {
+    "id": 2,
     "name": "Bar Chart",
     "type": "bar"
   },
   {
-    "id": 2,
+    "id": 3,
     "name": "Column Chart",
     "type": "column"
   },
   {
-    "id": 3,
+    "id": 4,
     "name": "Stacked Bar Chart",
     "type": "stackedBar"
   },
   {
-    "id": 4,
+    "id": 5,
     "name": "Stacked ColumnChart",
     "type": "stackedColumn"
   },
   {
-    "id": 5,
+    "id": 6,
     "name": "Pie Chart",
     "type": "pie"
   },
   {
-    "id": 6,
+    "id": 7,
     "name": "Doughnut Chart",
     "type": "doughnut"
   },
   {
-    "id": 7,
+    "id": 8,
     "name": "Bubble Chart",
     "type": "bubble"
+  },
+  {
+    "id": 9,
+    "name": "Gauge / Speedometer",
+    "type": "gauge",
+    "shortName": "gauge"
+  },
+  {
+    "id": 10,
+    "name": "Progress Bar",
+    "type": "progressBar",
+    "shortName": "progressBar"
+  },
+  {
+    "id": 11,
+    "name": "Timeline Chart",
+    "type": "timeline",
+    "shortName": "timeline"
   }
 ]
